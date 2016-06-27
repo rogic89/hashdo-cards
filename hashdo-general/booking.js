@@ -38,12 +38,6 @@ module.exports = {
       description: 'Booking session length in minutes',
       required: false
     },
-    // will prevent another booking for a week for the same user
-    useLocalStorage: {
-      example: 'no',
-      description: 'Use localstorage to prevent bookings',
-      required: false
-    },
     what: {
       example: "Mens haircut",
       description: 'Type of booking service',
@@ -94,43 +88,68 @@ module.exports = {
   },
 
   getCardData: function (inputs, state, callback) {
-    var now = new Date(),
-        month = now.getMonth(),
-        year = now.getFullYear(),
-        months = parseMonths(month, year),
-        timezone = '+2',  //parseInt(inputs.timezone, 10) || now.getTimezoneOffset() / 60,
-        hours = [ '8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00' ];
 
-    // locals sent to server-side jade
-    viewModel = {
-      img: inputs.img,
-      title: inputs.title,
-      months: months,
-      hours: hours,
-      userName: inputs.userName,
-      userEmail: inputs.userEmail
-    },
+    // if cached
+    if (state.email === inputs.userEmail && new Date().getTime() - state.timestamp < 0) {
 
-    // locals sent to client-side javascript
-    clientLocals = {
-      config: {
-        timezone: timezone,  // will use default value of +2 for now
-        bookingInterval: parseInt(inputs.bookingInterval, 10),
-        startHour: parseInt(inputs.startHour, 10),
-        workingHours: parseInt(inputs.workingHours, 10),
-        useLocalStorage: inputs.useLocalStorage === 'yes'
+      var viewModel = {
+        img: inputs.img,
+        userName: state.name,
+        userEmail: state.email,
+        selectedMonth: state.selectedMonth,
+        selectedDay: state.selectedDay,
+        selectedHour: state.selectedHour,
+        isBookingAllowed: false
       },
-      info: {
-        what: inputs.what || false,
-        where: inputs.where || false,
-        description: inputs.description || false,
-      },
-      timekit: {
-        app: inputs.timekitAppName,
-        email: inputs.timekitEmail,
-        password: inputs.timekitPassword
+
+      clientLocals = {
+        config: {
+          isBookingAllowed: false
+        }
       }
-    };
+
+    } else {
+
+      var now = new Date(),
+          month = now.getMonth(),
+          year = now.getFullYear(),
+          months = parseMonths(month, year),
+          timezone = '+2',  //parseInt(inputs.timezone, 10) || now.getTimezoneOffset() / 60,
+          hours = [ '8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00' ];
+
+      // locals sent to server-side jade
+      viewModel = {
+        img: inputs.img,
+        title: inputs.title,
+        months: months,
+        hours: hours,
+        userName: inputs.userName,
+        userEmail: inputs.userEmail,
+        isBookingAllowed: true
+      },
+
+      // locals sent to client-side javascript
+      clientLocals = {
+        config: {
+          timezone: timezone,  // will use default value of +2 for now
+          bookingInterval: parseInt(inputs.bookingInterval, 10),
+          startHour: parseInt(inputs.startHour, 10),
+          workingHours: parseInt(inputs.workingHours, 10),
+          isBookingAllowed: true
+        },
+        info: {
+          what: inputs.what || false,
+          where: inputs.where || false,
+          description: inputs.description || false,
+        },
+        timekit: {
+          app: inputs.timekitAppName,
+          email: inputs.timekitEmail,
+          password: inputs.timekitPassword
+        }
+      };
+
+    }
 
     callback(null, viewModel, clientLocals);
   }
