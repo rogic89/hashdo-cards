@@ -379,7 +379,6 @@ card.onReady = function () {
             setUpDeclineBookingAction(bookingId);
           });
         });
-
       });
     },
 
@@ -409,11 +408,11 @@ card.onReady = function () {
 
     requireTimekit = function() {
       if (typeof timekit === 'undefined') {
-        card.require('https://cdnjs.cloudflare.com/ajax/libs/timekit-js-sdk/1.5.0/timekit-sdk.min.js', function () {
-          requireTimekit();
+        card.require('https://cdn.hashdo.com/js/timekit-sdk.1.5.0.min.js', function () {
+          setUpTimekit();
         });
       } else {
-          setUpTimekit();
+        setUpTimekit();
       }
     },
 
@@ -430,9 +429,13 @@ card.onReady = function () {
           if (disabledAmd) {
             define.amd = true;
           }
-          requireHammer();
+
+          setUpHammer($shiftMonths, monthClick);
+          setUpHammer($shiftDays, dayClick);
+          setUpHammer($shiftHours, hourClick);
         });
-      } else {
+      }
+      else {
         setUpHammer($shiftMonths, monthClick);
         setUpHammer($shiftDays, dayClick);
         setUpHammer($shiftHours, hourClick);

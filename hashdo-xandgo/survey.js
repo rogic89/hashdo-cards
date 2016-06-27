@@ -157,6 +157,7 @@ module.exports = {
             {
               surveyId: survey.id,
               questions: translateQuestions(survey.translations, user.language, survey.questions),
+              questionImages: survey.questionImages,
               responses: responses || {},
               user: user,
               limit: survey.limit,
@@ -224,7 +225,7 @@ module.exports = {
     }
 
     function translateQuestions(translations, languageCode, questions) {
-      if (questions && _.isArray(questions)) {
+      if (translations && questions && _.isArray(questions)) {
         _.forEach(questions, function (question) {
           question.message = lookupQuestionTranslation(translations, languageCode, question);
 
